@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-көмекші мұғалім | SmartMektep</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional styles specific to teacher page */
+        .page-header {
+            padding-top: 140px;
+            padding-bottom: 60px;
+            background: linear-gradient(180deg, var(--bg-offset) 0%, var(--bg-main) 100%);
+            text-align: center;
+        }
+        
+        .tool-section {
+            padding: 60px 0;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .form-control {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+            background-color: var(--bg-main);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+        }
+        
+        .result-container {
+            display: none; /* Initially hidden */
+            margin-top: 32px;
+        }
+        
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Lesson Plan Results Styling */
+        .lesson-plan-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .lesson-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--bg-offset);
+        }
+        
+        .lesson-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .lesson-section h4 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .lesson-section h4 i {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Test Results Styling */
+        .test-question-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+        
+        .test-question-card h5 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .option-item {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-offset);
+        }
+        
+        .correct-answer-toggle {
+            cursor: pointer;
+            color: var(--accent-green);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        
+        .correct-answer-content {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--accent-green-light);
+            border-left: 4px solid var(--accent-green);
+            border-radius: 4px;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="logo">
+                <i data-lucide="brain-circuit" class="logo-icon"></i>
+                <span>SmartMektep</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#modules">Модульдер</a></li>
+                <li><a href="index.html#features">Артықшылықтар</a></li>
+            </ul>
+            <a href="index.html" class="btn btn-outline nav-btn">Басты бетке оралу</a>
+            <button class="mobile-menu-toggle" aria-label="Мәзірді ашу">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="page-header">
+        <div class="container">
+            <div class="module-icon-wrapper blue-wrapper" style="margin: 0 auto 24px;">
+                <i data-lucide="graduation-cap" class="module-icon"></i>
+            </div>
+            <h1>Мұғалімнің AI-көмекшісі</h1>
+            <p style="max-width: 600px; margin: 0 auto;">Сабақ жоспарларын лезде құрыңыз, оқушыларға арналған тесттер дайындаңыз. Барлық жұмысты жасанды интеллектке тапсырыңыз.</p>
+        </div>
+    </section>
+
+    <!-- Tool 1: Lesson Plan -->
+    <section class="tool-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">АВТОМАТТАНДЫРУ</span>
+                <h2>Сабақ жоспарын генерациялау</h2>
+                <p>Тақырыпты енгізіп, толық құрылымдалған сабақ жоспарын алыңыз</p>
+            </div>
+            
+            <div class="form-card" data-aos="fade-up">
+                <form id="lessonPlanForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="lessonSubject">Пән</label>
+                            <select id="lessonSubject" class="form-control" required>
+                                <option value="Математика">Математика</option>
+                                <option value="Қазақ тілі">Қазақ тілі</option>
+                                <option value="Қазақ әдебиеті">Қазақ әдебиеті</option>
+                                <option value="Тарих">Тарих</option>
+                                <option value="Физика">Физика</option>
+                                <option value="Химия">Химия</option>
+                                <option value="Ағылшын тілі">Ағылшын тілі</option>
+                                <option value="Информатика">Информатика</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lessonGrade">Сынып</label>
+                            <select id="lessonGrade" class="form-control" required>
+                                <option value="1 сынып">1 сынып</option>
+                                <option value="2 сынып">2 сынып</option>
+                                <option value="3 сынып">3 сынып</option>
+                                <option value="4 сынып">4 сынып</option>
+                                <option value="5 сынып">5 сынып</option>
+                                <option value="6 сынып">6 сынып</option>
+                                <option value="7 сынып">7 сынып</option>
+                                <option value="8 сынып">8 сынып</option>
+                                <option value="9 сынып">9 сынып</option>
+                                <option value="10 сынып">10 сынып</option>
+                                <option value="11 сынып">11 сынып</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="lessonTopic">Тақырып</label>
+                            <input type="text" id="lessonTopic" class="form-control" placeholder="Мысалы: Абай Құнанбаевтың өмірі мен шығармашылығы" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnLessonGenerate">
+                        <i data-lucide="sparkles"></i> AI жоспар жасау
+                    </button>
+                </form>
+            </div>
+
+            <div id="lessonPlanResult" class="result-container">
+                <!-- Content will be generated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool 2: Test Generation -->
+    <section class="tool-section" style="background-color: var(--bg-offset); border-top: 1px solid var(--border-color);">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">ТЕКСЕРУ</span>
+                <h2>Тест генерациялау</h2>
+                <p>Білімді тексеру үшін тақырыпқа сай сұрақтар мен жауаптар құрастырыңыз</p>
+            </div>
+            
+            <div class="form-card" data-aos="fade-up">
+                <form id="testGenForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="testSubject">Пән</label>
+                            <select id="testSubject" class="form-control" required>
+                                <option value="Математика">Математика</option>
+                                <option value="Қазақ тілі">Қазақ тілі</option>
+                                <option value="Қазақ әдебиеті">Қазақ әдебиеті</option>
+                                <option value="Тарих">Тарих</option>
+                                <option value="Физика">Физика</option>
+                                <option value="Химия">Химия</option>
+                                <option value="Ағылшын тілі">Ағылшын тілі</option>
+                                <option value="Информатика">Информатика</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="testGrade">Сынып</label>
+                            <select id="testGrade" class="form-control" required>
+                                <option value="5 сынып">5 сынып</option>
+                                <option value="6 сынып">6 сынып</option>
+                                <option value="7 сынып">7 сынып</option>
+                                <option value="8 сынып">8 сынып</option>
+                                <option value="9 сынып">9 сынып</option>
+                                <option value="10 сынып">10 сынып</option>
+                                <option value="11 сынып">11 сынып</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="testCount">Сұрақ саны</label>
+                            <select id="testCount" class="form-control" required>
+                                <option value="5">5 сұрақ</option>
+                                <option value="10">10 сұрақ</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="testTopic">Тақырып</label>
+                            <input type="text" id="testTopic" class="form-control" placeholder="Мысалы: Ньютон заңдары" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnTestGenerate">
+                        <i data-lucide="list-checks"></i> AI тест жасау
+                    </button>
+                </form>
+            </div>
+
+            <div id="testResult" class="result-container">
+                <!-- Content will be generated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool 3: AI Evaluation -->
+    <section class="tool-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">БАҒАЛАУ</span>
+                <h2>Оқушы жауабын AI бағалау</h2>
+                <p>Тапсырма мен оқушының жауабын енгізіңіз, AI автоматты түрде бағалап, пікір қалдырады</p>
+            </div>
+            
+            <div class="form-card" data-aos="fade-up">
+                <form id="evaluationForm">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="evalTask">Сұрақ немесе тапсырма</label>
+                            <textarea id="evalTask" class="form-control" rows="3" placeholder="Мысалы: Абайдың 'Қыс' өлеңіндегі негізгі ойды түсіндір" required></textarea>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="evalAnswer">Оқушының жауабы</label>
+                            <textarea id="evalAnswer" class="form-control" rows="4" placeholder="Оқушының жазған мәтіні..." required></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btnEvalGenerate">
+                        <i data-lucide="check-square"></i> AI бағалау
+                    </button>
+                </form>
+            </div>
+
+            <div id="evalResult" class="result-container">
+                <!-- Content will be generated here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool 4: Games -->
+    <section class="tool-section" style="background-color: var(--bg-offset); border-top: 1px solid var(--border-color);">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">ИНТЕРАКТИВ</span>
+                <h2>Білім беру ойындары</h2>
+                <p>Сабақты қызықты ету үшін интерактивті ойындарды қолданыңыз</p>
+            </div>
+            
+            <div class="tabs-container" data-aos="fade-up">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="quiz">Жылдам квиз</button>
+                    <button class="tab-btn" data-tab="match">Сөзжұмбақ (Сәйкестендіру)</button>
+                </div>
+                
+                <!-- Game 1: Quiz -->
+                <div class="tab-content active" id="tab-quiz">
+                    <div class="game-card">
+                        <div id="quizSetup" style="text-align: center; padding: 40px 0;">
+                            <i data-lucide="zap" style="width:48px; height:48px; color:var(--primary); margin-bottom: 24px;"></i>
+                            <h3 style="margin-bottom:16px;">Жылдам квиз (Quiz Rush)</h3>
+                            <p style="margin-bottom:24px; color: var(--text-muted);">Әр сұраққа 10 секунд беріледі. Дайынсыз ба?</p>
+                            <button class="btn btn-primary" id="startQuizBtn">Ойынды бастау</button>
+                        </div>
+                        <div id="quizPlay" style="display:none; max-width: 600px; margin: 0 auto;">
+                            <div class="quiz-header">
+                                <span id="quizProgressText" style="font-weight:600; color:var(--secondary);">1 / 5</span>
+                                <div class="timer-container">
+                                    <div class="timer-bar" id="quizTimerBar"></div>
+                                </div>
+                            </div>
+                            <h4 id="quizQuestion" style="margin-bottom: 32px; font-size:1.25rem;">Сұрақ мәтіні?</h4>
+                            <div class="quiz-options" id="quizOptions">
+                                <!-- Options will be injected -->
+                            </div>
+                        </div>
+                        <div id="quizResultScreen" style="display:none; text-align:center; padding: 40px 0;">
+                            <h3 style="margin-bottom: 24px;">Нәтижеңіз</h3>
+                            <div class="score-circle" id="quizFinalScore" style="margin: 0 auto 32px;">5/5</div>
+                            <button class="btn btn-primary" id="restartQuizBtn">Қайтадан ойнау</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game 2: Match -->
+                <div class="tab-content" id="tab-match">
+                    <div class="game-card">
+                        <div class="match-header" style="text-align:center; margin-bottom:40px;">
+                            <i data-lucide="puzzle" style="width:48px; height:48px; color:var(--accent-green); margin-bottom: 16px;"></i>
+                            <h3>Сәйкестендіру</h3>
+                            <p style="color: var(--text-muted);">Сол жақтағы терминдерді оң жақтағы дұрыс анықтамаларға сүйреңіз.</p>
+                            <div style="margin-top: 16px; font-weight: 600; color: var(--primary); font-size: 1.1rem;">
+                                Дұрыс: <span id="matchScore">0</span> / 5
+                            </div>
+                        </div>
+                        
+                        <div class="match-container">
+                            <div class="match-column">
+                                <h4 style="margin-bottom:16px; text-align:center;">Терминдер</h4>
+                                <div id="termsPool" class="terms-pool">
+                                    <!-- terms injected here -->
+                                </div>
+                            </div>
+                            <div class="match-column">
+                                <h4 style="margin-bottom:16px; text-align:center;">Анықтамалар</h4>
+                                <div id="definitionsCol" class="definitions-col">
+                                    <!-- defs injected here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="matchResultScreen" style="display:none; text-align:center; margin-top:40px;">
+                            <h3 style="margin-bottom: 24px; color: var(--accent-green);">Тамаша! Барлығы дұрыс.</h3>
+                            <button class="btn btn-primary" id="restartMatchBtn">Қайтадан ойнау</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">
+                    <i data-lucide="brain-circuit" class="logo-icon"></i>
+                    <span>SmartMektep</span>
+                </a>
+                <p>Білім беруді жаңа деңгейге көтеретін инновациялық AI-платформа.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Платформа</h4>
+                    <ul>
+                        <li><a href="teacher.html">Мұғалімге</a></li>
+                        <li><a href="director.html">Басшылыққа</a></li>
+
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Байланыс</h4>
+                    <ul>
+                        <li><i data-lucide="mail"></i> info@smartmektep.kz</li>
+                        <li><i data-lucide="phone"></i> +7 (700) 123-45-67</li>
+                        <li><i data-lucide="map-pin"></i> Астана қ., Мәңгілік Ел 55</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SmartMektep. Барлық құқықтар қорғалған.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Libraries -->
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <script src="teacher.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>

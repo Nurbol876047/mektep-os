@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QOLDAU AI Платформасы</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+       /* Layout overrides for SPA App mode */
+       body { background: #F8FAFC; display: flex; height: 100vh; overflow: hidden; margin:0; padding:0; font-family: 'Inter', sans-serif; }
+       
+       /* Sidebar */
+       .sidebar { width: 280px; background: white; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; flex-shrink: 0; z-index: 50; }
+       
+       .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-color); }
+       .logo-box { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 800; color: var(--secondary); text-decoration: none; }
+       .logo-mark { background: var(--accent-green-light); color: var(--accent-green); border-radius: 8px; padding: 6px 8px; font-size: 1.1rem; line-height: 1; }
+       
+       .school-info { font-size: 0.8rem; color: var(--text-muted); margin-top: 12px; line-height: 1.4; display:flex; align-items:flex-start; gap:8px;}
+       .school-info i { width:16px; height:16px; color:var(--accent-green); flex-shrink:0; margin-top:2px; }
+       
+       .sidebar-menu { flex: 1; overflow-y: auto; padding: 24px 16px; }
+       .menu-group { margin-bottom: 24px; }
+       .menu-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-left: 12px; }
+       
+       .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: var(--secondary); font-weight: 500; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+       .menu-item:hover { background: var(--bg-offset); }
+       .menu-item.active { background: var(--accent-green-light); color: var(--accent-green); }
+       .menu-item i { width: 18px; height: 18px; }
+       
+       .sidebar-footer { padding: 24px; border-top: 1px solid var(--border-color); }
+       .user-pill { background: var(--accent-green-light); color: var(--accent-green); padding: 8px 16px; border-radius: 100px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+       
+       /* Main Area */
+       .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }
+       
+       /* Topbar */
+       .topbar { height: 72px; background: white; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; flex-shrink: 0; }
+       .search-bar { display: flex; align-items: center; background: var(--bg-offset); border-radius: 100px; padding: 10px 16px; width: 300px; border: 1px solid var(--border-color); transition: border-color 0.2s; }
+       .search-bar:focus-within { border-color: var(--accent-green); }
+       .search-bar input { border: none; background: transparent; outline: none; padding-left: 8px; width: 100%; font-family: inherit; font-size: 0.9rem; }
+       
+       .content-area { flex: 1; overflow-y: auto; padding: 32px; }
+       .content-container { max-width: 1100px; margin: 0 auto; }
+       
+       /* App Sections */
+       .app-section { display: none; }
+       .app-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+       
+       /* Forms and Cards Fixes for App Area */
+       .form-card, .card-style, .lesson-plan-card, .agenda-card, .analytics-card, .metric-card, .chart-card {
+           background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid var(--border-color); margin-bottom: 24px;
+       }
+       .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 24px; }
+       .form-group { display: flex; flex-direction: column; gap: 8px; }
+       .form-group label { font-size: 0.875rem; font-weight: 600; color: var(--secondary); }
+       .form-control { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; background-color: var(--bg-main); }
+       .result-container { display: none; margin-top: 32px; }
+       
+       /* Game Tabs specific */
+       .tabs-header { display: flex; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 0; }
+       .tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 1.05rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+       .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: transparent; box-shadow: none; }
+       .game-tab-content { display: none; }
+       .game-tab-content.active { display: block; }
+       
+       /* Mobile specific */
+       .mobile-menu-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:40; }
+       .mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--secondary); margin-right: 16px; }
+       @media (max-width: 992px) {
+           .sidebar { position: fixed; left: -280px; transition: left 0.3s; box-shadow: var(--shadow-xl); }
+           .sidebar.open { left: 0; }
+           .mobile-menu-overlay.open { display:block; }
+           .mobile-menu-btn { display: block; }
+           .search-bar { width: 200px; }
+           .topbar { padding: 0 16px; }
+           .content-area { padding: 16px; }
+       }
+       @media (max-width: 600px) {
+           .search-bar { display: none; }
+       }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="logo-box">
+                <div class="logo-mark">QA</div>
+                <span>QOLDAU AI</span>
+            </a>
+            <div class="school-info">
+                <i data-lucide="map-pin"></i>
+                <span id="sidebarSchoolInfo"></span>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-group">
+                <div class="menu-title">Басшылыққа</div>
+                <div class="menu-item active" data-target="sec-dashboard"><i data-lucide="pie-chart"></i> Мониторингі</div>
+                <div class="menu-item" data-target="sec-agenda"><i data-lucide="calendar"></i> Кеңес жоспары</div>
+                <div class="menu-item" data-target="sec-analytics"><i data-lucide="line-chart"></i> AI-аналитик</div>
+                <div class="menu-item" data-target="sec-tasks"><i data-lucide="check-circle-2"></i> Тапсырмалар</div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-title">Мұғалімге</div>
+                <div class="menu-item" data-target="sec-lesson"><i data-lucide="file-edit"></i> КТЖ-шаблон</div>
+                <div class="menu-item" data-target="sec-test"><i data-lucide="list-checks"></i> Тест генерациялау</div>
+                <div class="menu-item" data-target="sec-eval"><i data-lucide="check-square"></i> Жұмысты тексеру</div>
+                <div class="menu-item" data-target="sec-games"><i data-lucide="gamepad-2"></i> Ойындар</div>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <i data-lucide="user"></i> <span id="sidebarUserName"></span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+        <header class="topbar">
+            <div style="display:flex; align-items:center;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Іздеу...">
+                </div>
+            </div>
+            <div class="user-pill" style="background:transparent; color:var(--accent-green); border: 1px solid var(--accent-green-light);">
+                <i data-lucide="user" style="width:18px;height:18px;"></i>
+                <span id="topbarUserName"></span>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <div class="content-container">
+            
+                <!-- ================== SECTION: LESSON PLAN ================== -->
+                <section id="sec-lesson" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">КТЖ-шаблон</h2>
+                        <p style="color:var(--text-muted);">AI көмегімен сабақ жоспарын құру</p>
+                    </div>
+                    
+                    <div class="form-card">
+                        <form id="lessonPlanForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="lessonSubject">Пән</label>
+                                    <select id="lessonSubject" class="form-control" required>
+                                        <option value="Математика">Математика</option>
+                                        <option value="Қазақ тілі">Қазақ тілі</option>
+                                        <option value="Қазақ әдебиеті">Қазақ әдебиеті</option>
+                                        <option value="Тарих">Тарих</option>
+                                        <option value="Физика">Физика</option>
+                                        <option value="Химия">Химия</option>
+                                        <option value="Ағылшын тілі">Ағылшын тілі</option>
+                                        <option value="Информатика">Информатика</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lessonGrade">Сынып</label>
+                                    <select id="lessonGrade" class="form-control" required>
+                                        <option value="5 сынып">5 сынып</option>
+                                        <option value="6 сынып">6 сынып</option>
+                                        <option value="7 сынып">7 сынып</option>
+                                        <option value="8 сынып">8 сынып</option>
+                                        <option value="9 сынып">9 сынып</option>
+                                        <option value="10 сынып">10 сынып</option>
+                                        <option value="11 сынып">11 сынып</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="lessonTopic">Тақырып</label>
+                                    <input type="text" id="lessonTopic" class="form-control" placeholder="Мысалы: Абай Құнанбаевтың өмірі мен шығармашылығы" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnLessonGenerate">
+                                <i data-lucide="sparkles"></i> AI жоспар жасау
+                            </button>
+                        </form>
+                    </div>
+                    <div id="lessonPlanResult" class="result-container"></div>
+                </section>
+
+                <!-- ================== SECTION: TEST GEN ================== -->
+                <section id="sec-test" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Тест генерациялау</h2>
+                        <p style="color:var(--text-muted);">Тақырыпқа сай сұрақтар мен жауаптар құрастыру</p>
+                    </div>
+                    <div class="form-card">
+                        <form id="testGenForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="testSubject">Пән</label>
+                                    <select id="testSubject" class="form-control" required>
+                                        <option value="Математика">Математика</option>
+                                        <option value="Қазақ тілі">Қазақ тілі</option>
+                                        <option value="Тарих">Тарих</option>
+                                        <option value="Физика">Физика</option>
+                                        <option value="Информатика">Информатика</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="testGrade">Сынып</label>
+                                    <select id="testGrade" class="form-control" required>
+                                        <option value="5 сынып">5 сынып</option>
+                                        <option value="6 сынып">6 сынып</option>
+                                        <option value="7 сынып">7 сынып</option>
+                                        <option value="8 сынып">8 сынып</option>
+                                        <option value="9 сынып">9 сынып</option>
+                                        <option value="10 сынып">10 сынып</option>
+                                        <option value="11 сынып">11 сынып</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="testCount">Сұрақ саны</label>
+                                    <select id="testCount" class="form-control" required>
+                                        <option value="5">5 сұрақ</option>
+                                        <option value="10">10 сұрақ</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="testTopic">Тақырып</label>
+                                    <input type="text" id="testTopic" class="form-control" placeholder="Мысалы: Ньютон заңдары" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnTestGenerate">
+                                <i data-lucide="list-checks"></i> AI тест жасау
+                            </button>
+                        </form>
+                    </div>
+                    <div id="testResult" class="result-container"></div>
+                </section>
+
+                <!-- ================== SECTION: EVAL ================== -->
+                <section id="sec-eval" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Жұмысты тексеру</h2>
+                        <p style="color:var(--text-muted);">Оқушы жауабын AI көмегімен бағалау</p>
+                    </div>
+                    <div class="form-card">
+                        <form id="evaluationForm">
+                            <div class="form-grid">
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="evalTask">Тапсырма немесе сұрақ</label>
+                                    <textarea id="evalTask" class="form-control" rows="2" placeholder="Абайдың 'Қыс' өлеңіндегі негізгі ой..." required></textarea>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="evalAnswer">Оқушының жауабы</label>
+                                    <textarea id="evalAnswer" class="form-control" rows="4" placeholder="Оқушы мәтіні..." required></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnEvalGenerate">
+                                <i data-lucide="check-square"></i> AI бағалау
+                            </button>
+                        </form>
+                    </div>
+                    <div id="evalResult" class="result-container"></div>
+                </section>
+
+                <!-- ================== SECTION: GAMES ================== -->
+                <section id="sec-games" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Ойындар</h2>
+                        <p style="color:var(--text-muted);">Сабақты қызықты ету үшін интерактив</p>
+                    </div>
+                    
+                    <div class="tabs-header" style="justify-content: flex-start;">
+                        <button class="tab-btn active" data-game-tab="quiz">Жылдам квиз</button>
+                        <button class="tab-btn" data-game-tab="match">Сәйкестендіру</button>
+                    </div>
+                    
+                    <!-- Game 1: Quiz -->
+                    <div class="game-tab-content active" id="gtab-quiz">
+                        <div class="form-card">
+                            <div id="quizSetup" style="text-align: center; padding: 40px 0;">
+                                <i data-lucide="zap" style="width:48px; height:48px; color:var(--primary); margin-bottom: 24px;"></i>
+                                <h3 style="margin-bottom:16px;">Жылдам квиз</h3>
+                                <div class="form-group" style="max-width: 400px; margin: 0 auto 24px; text-align: left;">
+                                    <label for="quizTopicInput">Квиз тақырыбы</label>
+                                    <input type="text" id="quizTopicInput" class="form-control" placeholder="Мысалы: Химиялық элементтер" required>
+                                </div>
+                                <button class="btn btn-primary" id="startQuizBtn">Ойынды бастау</button>
+                            </div>
+                            <div id="quizPlay" style="display:none; max-width: 600px; margin: 0 auto;">
+                                <div class="quiz-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                                    <span id="quizProgressText" style="font-weight:600;">1 / 5</span>
+                                    <div class="timer-container" style="width:200px; height:8px; background:#e2e8f0; border-radius:4px;"><div class="timer-bar" id="quizTimerBar" style="height:100%; background:var(--primary);"></div></div>
+                                </div>
+                                <h4 id="quizQuestion" style="margin-bottom: 32px; font-size:1.25rem;">Сұрақ?</h4>
+                                <div class="quiz-options" id="quizOptions"></div>
+                            </div>
+                            <div id="quizResultScreen" style="display:none; text-align:center; padding: 40px 0;">
+                                <h3 style="margin-bottom: 24px;">Нәтижеңіз</h3>
+                                <div class="eval-score score-5" id="quizFinalScore" style="margin: 0 auto 32px;">5/5</div>
+                                <button class="btn btn-primary" id="restartQuizBtn">Қайтадан ойнау</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game 2: Match -->
+                    <div class="game-tab-content" id="gtab-match">
+                        <div class="form-card">
+                            <div class="match-header" style="text-align:center; margin-bottom:24px;">
+                                <div style="font-weight: 600; color: var(--primary); font-size: 1.1rem;">Дұрыс: <span id="matchScore">0</span> / 5</div>
+                            </div>
+                            <div class="match-container" style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                                <div class="match-column"><h4 style="text-align:center;">Терминдер</h4><div id="termsPool" class="terms-pool"></div></div>
+                                <div class="match-column"><h4 style="text-align:center;">Анықтамалар</h4><div id="definitionsCol" class="definitions-col" style="display:flex; flex-direction:column; gap:12px;"></div></div>
+                            </div>
+                            <div id="matchResultScreen" style="display:none; text-align:center; margin-top:40px;">
+                                <h3 style="margin-bottom: 24px; color: var(--accent-green);">Тамаша!</h3>
+                                <button class="btn btn-primary" id="restartMatchBtn">Қайта ойнау</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== SECTION: AGENDA ================== -->
+                <section id="sec-agenda" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Кеңес жоспары</h2>
+                        <p style="color:var(--text-muted);">Әкімшілік жиналыстардың жоспарын автоматты түрде құру</p>
+                    </div>
+                    <div class="form-card">
+                        <form id="agendaForm">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="agendaType">Кеңес түрі</label>
+                                    <select id="agendaType" class="form-control" required>
+                                        <option value="Педагогикалық кеңес">Педагогикалық кеңес</option>
+                                        <option value="Әдістемелік кеңес">Әдістемелік кеңес</option>
+                                        <option value="Директор жанындағы кеңес">Директор жанындағы кеңес</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="agendaDate">Күні</label>
+                                    <input type="date" id="agendaDate" class="form-control" required>
+                                </div>
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label for="agendaTopic">Тақырып</label>
+                                    <input type="text" id="agendaTopic" class="form-control" placeholder="Мысалы: Оқу сапасын арттыру" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnAgendaGenerate">
+                                <i data-lucide="file-text"></i> AI жоспар жасау
+                            </button>
+                        </form>
+                    </div>
+                    <div id="agendaResult" class="result-container"></div>
+                </section>
+
+                <!-- ================== SECTION: ANALYTICS ================== -->
+                <section id="sec-analytics" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">AI-аналитик</h2>
+                        <p style="color:var(--text-muted);">Мектеп деректеріне интеллектуалды талдау жасау</p>
+                    </div>
+                    <div class="form-card">
+                        <form id="analyticsForm">
+                            <div class="form-group" style="margin-bottom: 24px;">
+                                <label for="analyticsQuestion">Аналитикалық сұрақ</label>
+                                <div style="position: relative; width: 100%;">
+                                    <textarea id="analyticsQuestion" class="form-control" rows="3" placeholder="7-сыныптарда қандай проблема бар?" required style="padding-right: 50px; width: 100%; box-sizing: border-box;"></textarea>
+                                    <button type="button" id="btnVoiceInput" style="position: absolute; right: 10px; bottom: 10px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-color); transition: 0.2s;" title="Дауыспен енгізу">
+                                        <i data-lucide="mic" style="width:18px;height:18px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnAnalyticsGenerate">
+                                <i data-lucide="line-chart"></i> Талдау сұрау
+                            </button>
+                        </form>
+                    </div>
+                    <div id="analyticsResult" class="result-container"></div>
+                </section>
+
+                <!-- ================== SECTION: DASHBOARD ================== -->
+                <section id="sec-dashboard" class="app-section active">
+                    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Мониторингі</h2>
+                            <p style="color:var(--text-muted);">Мектептің негізгі көрсеткіштері</p>
+                        </div>
+
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-card" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <div class="metric-icon"><i data-lucide="trending-up"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="metric-progress">82%</div>
+                                <div class="metric-label">Жалпы үлгерім</div>
+                            </div>
+                        </div>
+                        <div class="metric-card" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <div class="metric-icon green"><i data-lucide="users"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="metric-attendance">94%</div>
+                                <div class="metric-label">Қатысу</div>
+                            </div>
+                        </div>
+                        <div class="metric-card" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <div class="metric-icon purple"><i data-lucide="check-circle-2"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="metric-tasks">88%</div>
+                                <div class="metric-label">Тапсырмалар</div>
+                            </div>
+                        </div>
+                        <div class="metric-card" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <div class="metric-icon orange"><i data-lucide="clipboard-list"></i></div>
+                            <div class="metric-info">
+                                <div class="metric-value" id="metric-active">12</div>
+                                <div class="metric-label">Белсенді</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-card line-chart" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <h3>Үлгерім динамикасы</h3>
+                            <div style="height: 300px; width: 100%;"><canvas id="lineChart"></canvas></div>
+                        </div>
+                        <div class="chart-card bar-chart" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <h3>Сыныптар бойынша</h3>
+                            <div style="height: 250px; width: 100%;"><canvas id="barChart"></canvas></div>
+                        </div>
+                        <div class="chart-card doughnut-chart" style="background:white; border-radius:16px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+                            <h3>Тапсырмалар статусы</h3>
+                            <div style="height: 250px; width: 100%; display: flex; justify-content: center;"><canvas id="doughnutChart"></canvas></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================== SECTION: TASKS ================== -->
+                <section id="sec-tasks" class="app-section">
+                    <div style="margin-bottom: 24px;">
+                        <h2 style="font-size: 1.75rem; font-weight:800; color:var(--secondary); margin-bottom:8px;">Тапсырмалар</h2>
+                        <p style="color:var(--text-muted);">Мектеп ішілік міндеттерді басқару (Kanban)</p>
+                    </div>
+                    <div class="form-card" style="margin-bottom: 32px;">
+                        <form id="taskForm">
+                            <div class="form-grid" style="align-items: flex-end; margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label for="taskTitle">Тапсырма атауы</label>
+                                    <input type="text" id="taskTitle" class="form-control" placeholder="Мысалы: Отчет тапсыру" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskPerson">Жауапты адам</label>
+                                    <input type="text" id="taskPerson" class="form-control" placeholder="Аты-жөні немесе қызметі" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskDate">Мерзімі</label>
+                                    <input type="date" id="taskDate" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="taskPriority">Басымдық</label>
+                                    <select id="taskPriority" class="form-control" required>
+                                        <option value="high">Жоғары</option>
+                                        <option value="medium">Орташа</option>
+                                        <option value="low">Төмен</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="height: 48px; margin-bottom: 2px;">Қосу</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="kanban-board">
+                        <div class="kanban-column">
+                            <div class="kanban-header">Күтуде <span class="task-count">0</span></div>
+                            <div class="kanban-list" id="kb-todo"></div>
+                        </div>
+                        <div class="kanban-column">
+                            <div class="kanban-header">Орындалуда <span class="task-count">0</span></div>
+                            <div class="kanban-list" id="kb-inprogress"></div>
+                        </div>
+                        <div class="kanban-column">
+                            <div class="kanban-header">Орындалды <span class="task-count">0</span></div>
+                            <div class="kanban-list" id="kb-done"></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>
