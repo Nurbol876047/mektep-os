@@ -1012,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 mediaRecorder.start();
                 isRecording = true;
                 btnVoiceInput.style.color = '#ef4444'; // Red for recording
-                btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:18px;height:18px;" class="spin"></i>';
+                btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:24px;height:24px;" class="spin"></i>';
                 if(window.lucide) window.lucide.createIcons();
                 analyticsQuestion.placeholder = "Тыңдап жатырмын...";
                 checkSilence();
@@ -1027,8 +1027,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 mediaRecorder.stop();
             }
             isRecording = false;
-            btnVoiceInput.style.color = 'var(--text-color)';
-            btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:18px;height:18px;"></i>';
+            btnVoiceInput.style.color = 'var(--primary)';
+            btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:24px;height:24px;"></i>';
             if(window.lucide) window.lucide.createIcons();
             analyticsQuestion.placeholder = "Сұрағыңызды жазыңыз немесе дауыспен айтыңыз...";
         }
@@ -1063,7 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Speech recognition error", err);
                 if(window.Swal) Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Қате', text: 'Дауысты өңдеу мүмкін болмады.', showConfirmButton: false, timer: 3000 });
             } finally {
-                btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:18px;height:18px;"></i>';
+                btnVoiceInput.innerHTML = '<i data-lucide="mic" style="width:24px;height:24px;"></i>';
                 if(window.lucide) window.lucide.createIcons();
                 analyticsQuestion.placeholder = "7-сыныптарда қандай проблема бар?";
             }

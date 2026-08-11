@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="ai-chat-input-area">
                 <form id="aiChatForm" style="display:flex; width:100%; gap:8px;">
                     <input type="text" id="aiChatInput" placeholder="Сұрағыңызды жазыңыз..." autocomplete="off">
-                    <button type="button" class="ai-chat-voice" id="aiVoiceBtn" style="border:1px solid var(--border-color); background:transparent; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-color); transition:0.2s;">
-                        <i data-lucide="mic" style="width:18px;height:18px;"></i>
+                    <button type="button" class="ai-chat-voice" id="aiVoiceBtn" style="border:1px solid var(--primary); background:rgba(37, 99, 235, 0.1); width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--primary); transition:0.3s; box-shadow: 0 4px 10px rgba(37,99,235,0.15);">
+                        <i data-lucide="mic" style="width:24px;height:24px;"></i>
                     </button>
                     <button type="submit" class="ai-chat-send">
                         <i data-lucide="send"></i>
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isRecording = true;
             aiVoiceBtn.style.color = '#ef4444'; // Red for recording
             aiVoiceBtn.style.borderColor = '#ef4444';
-            aiVoiceBtn.innerHTML = '<i data-lucide="mic" style="width:18px;height:18px;" class="spin"></i>';
+            aiVoiceBtn.innerHTML = '<i data-lucide="mic" style="width:24px;height:24px;" class="spin"></i>';
             lucide.createIcons();
             chatInput.placeholder = "Тыңдап жатырмын...";
             checkSilence();
@@ -211,9 +211,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.stop();
         }
         isRecording = false;
-        aiVoiceBtn.style.color = 'var(--text-color)';
-        aiVoiceBtn.style.borderColor = 'var(--border-color)';
-        aiVoiceBtn.innerHTML = '<i data-lucide="mic" style="width:18px;height:18px;"></i>';
+        aiVoiceBtn.style.color = 'var(--primary)';
+        aiVoiceBtn.style.borderColor = 'var(--primary)';
+        aiVoiceBtn.innerHTML = '<i data-lucide="mic" style="width:24px;height:24px;"></i>';
         lucide.createIcons();
         chatInput.placeholder = "Сұрағыңызды жазыңыз...";
     }
