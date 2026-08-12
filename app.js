@@ -139,12 +139,21 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="skeleton" style="height: 20px; width: 80%; border-radius: 4px;"></div>
     `;
 
-    const fetchWithTimeout = (url, options, timeout = 15000) => {
+    const fetchWithTimeout = (url, options, timeout = 60000) => {
         return Promise.race([
             fetch(url, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
         ]);
     };
+
+    function safeParseJSON(text) {
+        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        if (match) {
+            return JSON.parse(match[0]);
+        }
+        return JSON.parse(text);
+    }
 
     // --- MODULE 1: LESSON PLAN ---
     const lessonPlanForm = document.getElementById('lessonPlanForm');
@@ -184,9 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (!res.ok) throw new Error("API Error: " + res.status);
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
 
     function renderLessonPlan(data) {
@@ -261,9 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (!res.ok) throw new Error("API Error: " + res.status);
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
 
     function renderTest(questions, container) {
@@ -327,9 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
 
     function renderEval(data) {
@@ -403,9 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!res.ok) throw new Error(`API Error: ${res.status}`);
         
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
     const restartQuizBtn = document.getElementById('restartQuizBtn');
     if(restartQuizBtn) {
@@ -570,9 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
 
     function renderAgenda(data) {
@@ -637,9 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const data = await res.json();
-        let text = data.message;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return safeParseJSON(data.message);
     }
 
     function renderAnalytics(textHtml) {
