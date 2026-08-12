@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn) btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Жүктелуде...';
             if (window.lucide) window.lucide.createIcons();
 
-            const res = await fetch('http://localhost:8787/api/text-to-speech', {
+            const res = await fetch('/api/text-to-speech', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: cleanText, locale: 'kk' })
@@ -1043,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 formData.append('audio', audioBlob, 'audio.webm');
                 formData.append('locale', 'kk');
                 
-                const sttRes = await fetch('http://localhost:8787/api/speech-to-text', {
+                const sttRes = await fetch('/api/speech-to-text', {
                     method: 'POST',
                     body: formData
                 });

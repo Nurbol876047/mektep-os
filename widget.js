@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('audio', audioBlob, 'audio.webm');
             formData.append('locale', 'kk');
             
-            const sttRes = await fetch('http://localhost:8787/api/speech-to-text', {
+            const sttRes = await fetch('/api/speech-to-text', {
                 method: 'POST',
                 body: formData
             });
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function playVoiceResponse(text) {
         try {
-            const res = await fetch('http://localhost:8787/api/text-to-speech', {
+            const res = await fetch('/api/text-to-speech', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, locale: 'kk' })
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             // Use the new backend if it's available
-            const res = await fetch(`http://localhost:8787/api/chat`, {
+            const res = await fetch(`/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
