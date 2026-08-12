@@ -177,19 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchLessonPlanFromGemini(subject, grade, topic) {
-        if(!window.GEMINI_API_KEY || window.GEMINI_API_KEY === "YOUR_API_KEY_HERE") throw new Error("No API Key");
         const prompt = `Сен тәжірибелі мұғалімсің. Мына тақырып бойынша қазақ тілінде сабақ жоспарын жаз.\nПән: ${subject}. Сынып: ${grade}. Тақырып: ${topic}.\nЖауапты JSON форматында қайтар: {"aim": "Мақсаты", "results": ["Нәтиже 1"], "course": {"intro": "Кіріспе", "main": "Негізгі", "conclusion": "Қорытынды"}, "tasks": ["Тапсырма 1"]}`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error("Gemini API қатесі (" + res.status + "):", errText);
-            throw new Error("API Error: " + res.status);
-        }
+        if (!res.ok) throw new Error("API Error: " + res.status);
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -259,19 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchTestFromGemini(subject, grade, topic, count) {
-        if(!window.GEMINI_API_KEY) throw new Error("No API Key");
         const prompt = `Сен тәжірибелі мұғалімсің. Пән: ${subject}. Сынып: ${grade}. Тақырып: ${topic}. Сұрақ саны: ${count}. Тест сұрақтарын құрастыр.\nЖауапты JSON форматында қайтар: [ { "question": "Сұрақ?", "options": ["А", "В", "С", "Д"], "answer": "Дұрыс жауап" } ]`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error("Gemini API қатесі (" + res.status + "):", errText);
-            throw new Error("API Error: " + res.status);
-        }
+        if (!res.ok) throw new Error("API Error: " + res.status);
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -331,14 +321,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchEvalFromGemini(task, answer) {
-        if(!window.GEMINI_API_KEY) throw new Error("No API");
         const prompt = `Сен тәжірибелі мұғалімсің. Оқушының мына тапсырмаға берген жауабын бағала.\nТапсырма: "${task}"\nОқушының жауабы: "${answer}"\n5 балдық жүйемен бағалап, қысқаша пікір жаз.\nJSON қайтар: {"score": 5, "comment": "Пікір"}`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -399,28 +388,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchQuizFromGemini(topic) {
-        const apiKey = window.GEMINI_API_KEY;
-        if (!apiKey) throw new Error("No API Key");
-        
         const prompt = `Сен тәжірибелі мектеп мұғалімісің. "${topic}" тақырыбына оқушыларға арналған 5 сұрақтан тұратын квиз (тест) құрастыр. 
 Жауапты міндетті түрде тек қана JSON форматында қайтар. Құрылымы мынадай болсын:
 [
   { "q": "Сұрақ мәтіні?", "options": ["Жауап 1", "Жауап 2", "Жауап 3", "Жауап 4"], "a": "Дұрыс жауап" }
 ]`;
 
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         }, 15000);
         
-        if (!res.ok) {
-            const errText = await res.text();
-            throw new Error(`API Error: ${res.status} - ${errText}`);
-        }
+        if (!res.ok) throw new Error(`API Error: ${res.status}`);
         
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -581,14 +564,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAgendaFromGemini(type, topic, date) {
-        if(!window.GEMINI_API_KEY) throw new Error("No API");
         const prompt = `Мектеп басшылығына арналған кеңес жоспарын құрастыр.\nКеңес түрі: ${type}. Күні: ${date}. Тақырыбы: ${topic}.\nJSON қайтар: {"agenda": [{"time": "10:00 - 10:15", "text": "Тармақ"}], "roles": ["Рөл 1"], "resolution": "Шешім"}`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -644,11 +626,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAnalyticsFromGemini(question) {
-        if(!window.GEMINI_API_KEY) throw new Error("No API");
         const prompt = `Сен мектеп директорының AI-көмекшісісің.\nДеректер: ${JSON.stringify(window.schoolMockData || {})}\nСұрақ: "${question}"\nҚазақ тілінде аналитикалық жауап бер.\nJSON қайтар: {"text": "Талдау мәтіні"}`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${window.GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
         
         if (!res.ok) {
@@ -656,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     }
@@ -884,17 +865,16 @@ document.addEventListener('DOMContentLoaded', () => {
   "doughnutChart": [орындалған, орындалуда, күтуде тапсырмалар саны]
 }`;
 
-                const apiKey = window.GEMINI_API_KEY;
-                const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
+                const res = await fetchWithTimeout(`/api/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
                 }, 25000);
                 
                 if(!res.ok) throw new Error("API Error");
                 
                 const data = await res.json();
-                let jsonText = data.candidates[0].content.parts[0].text;
+                let jsonText = data.message;
                 const match = jsonText.match(/\{[\s\S]*\}/);
                 if(!match) throw new Error("No JSON found in response: " + jsonText);
                 const parsed = JSON.parse(match[0]);
