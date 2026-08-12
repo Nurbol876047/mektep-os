@@ -188,6 +188,9 @@ async function generateGeminiText({ contents, instructions, maxOutputTokens = 32
     payload.systemInstruction = { parts: [{ text: instructions }] };
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 55000);
+  
   const geminiResponse = await fetch(geminiEndpoint(), {
     method: 'POST',
     headers: {
@@ -195,7 +198,10 @@ async function generateGeminiText({ contents, instructions, maxOutputTokens = 32
       'x-goog-api-key': geminiApiKey,
     },
     body: JSON.stringify(payload),
+    signal: controller.signal
   });
+  
+  clearTimeout(timeoutId);
   const data = await geminiResponse.json().catch(() => ({}));
 
   if (!geminiResponse.ok) {

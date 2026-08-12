@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-    const fetchWithTimeout = (url, options, timeout = 60000) => {
+    const fetchWithTimeout = (url, options, timeout = 120000) => {
         return Promise.race([
             fetch(url, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))

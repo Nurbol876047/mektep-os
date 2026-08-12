@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="skeleton" style="height: 20px; width: 80%; border-radius: 4px;"></div>
     `;
 
-    const fetchWithTimeout = (url, options, timeout = 60000) => {
+    const fetchWithTimeout = (url, options, timeout = 120000) => {
         return Promise.race([
             fetch(url, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
