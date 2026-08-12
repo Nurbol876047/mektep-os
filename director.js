@@ -126,9 +126,9 @@ JSON-нан басқа артық мәтін жазба.`;
             body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
         if (!res.ok) {
-            const errText = await res.text();
-            console.error("Gemini API қатесі (" + res.status + "):", errText);
-            throw new Error("API Error: " + res.status);
+            let msg = "API Error: " + res.status;
+            try { const errData = await res.json(); if(errData.error) msg = errData.error; } catch(e){}
+            throw new Error(msg);
         }
         const data = await res.json();
         let text = data.message;
@@ -202,7 +202,9 @@ JSON-нан басқа артық мәтін жазба.`;
         });
         
         if (!res.ok) {
-            throw new Error("API Error: " + res.status);
+            let msg = "API Error: " + res.status;
+            try { const errData = await res.json(); if(errData.error) msg = errData.error; } catch(e){}
+            throw new Error(msg);
         }
         
         const data = await res.json();
