@@ -21,7 +21,7 @@ const geminiApiKeyNames = [
 ];
 const geminiApiKeyName = geminiApiKeyNames.find((keyName) => Boolean(process.env[keyName]?.trim()));
 const geminiApiKey = geminiApiKeyName ? process.env[geminiApiKeyName].trim() : '';
-const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 const geminiThinkingBudget = Number(process.env.GEMINI_THINKING_BUDGET ?? 0);
 const geminiApiBaseUrl = (process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(
   /\/$/,
