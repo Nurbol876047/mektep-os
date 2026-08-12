@@ -625,7 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAnalyticsFromGemini(question) {
-        const prompt = `Сен мектеп директорының AI-көмекшісісің.\nДеректер: ${JSON.stringify(window.schoolMockData || {})}\nСұрақ: "${question}"\nҚазақ тілінде аналитикалық жауап бер.\nJSON қайтар: {"text": "Талдау мәтіні"}`;
+        const prompt = `Сен мектеп директорының AI-көмекшісісің.\nДеректер: ${JSON.stringify(window.schoolMockData || {})}\nСұрақ: "${question}"\nҚазақ тілінде нақты аналитикалық жауап бер.`;
         const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
@@ -636,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const data = await res.json();
-        return safeParseJSON(data.message);
+        return { text: data.message };
     }
 
     function renderAnalytics(textHtml) {

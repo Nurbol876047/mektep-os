@@ -176,7 +176,7 @@ async function generateGeminiText({ contents, instructions, maxOutputTokens = 32
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens: maxOutputTokens || 2048,
+      maxOutputTokens: maxOutputTokens || 8192,
     },
   };
 
@@ -340,7 +340,7 @@ app.post('/api/chat', async (request, response) => {
       const result = await generateGeminiText({
         instructions: systemInstructions(locale, mode, role, systemContext),
         contents,
-        maxOutputTokens: mode === 'voice-support' ? 512 : 2048,
+        maxOutputTokens: mode === 'voice-support' ? 512 : 8192,
       });
 
       return response.json({
