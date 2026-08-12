@@ -21,7 +21,7 @@ const geminiApiKeyNames = [
 ];
 const geminiApiKeyName = geminiApiKeyNames.find((keyName) => Boolean(process.env[keyName]?.trim()));
 const geminiApiKey = geminiApiKeyName ? process.env[geminiApiKeyName].trim() : '';
-const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 const geminiThinkingBudget = Number(process.env.GEMINI_THINKING_BUDGET ?? 0);
 const geminiApiBaseUrl = (process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(
   /\/$/,
@@ -374,10 +374,11 @@ app.post('/api/chat', async (request, response) => {
   } catch (error) {
     console.error(`${activeProvider} chat error:`, error);
     const fallbackText = localFallbackReply(locale, cleanMessage) || mockReply(locale, role);
-    return response.json({
+    return response.status(500).json({
       message: fallbackText,
       source: 'fallback',
       degraded: true,
+      error: error.message
     });
   }
 });
