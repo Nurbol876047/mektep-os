@@ -21,7 +21,7 @@ const geminiApiKeyNames = [
 ];
 const geminiApiKeyName = geminiApiKeyNames.find((keyName) => Boolean(process.env[keyName]?.trim()));
 const geminiApiKey = geminiApiKeyName ? process.env[geminiApiKeyName].trim() : '';
-const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const geminiThinkingBudget = Number(process.env.GEMINI_THINKING_BUDGET ?? 0);
 const geminiApiBaseUrl = (process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta').replace(
   /\/$/,
@@ -176,11 +176,11 @@ async function generateGeminiText({ contents, instructions, maxOutputTokens = 32
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens,
+      maxOutputTokens: maxOutputTokens || 2048,
     },
   };
 
-  if (Number.isFinite(geminiThinkingBudget)) {
+  if (Number.isFinite(geminiThinkingBudget) && geminiThinkingBudget > 0) {
     payload.generationConfig.thinkingConfig = { thinkingBudget: geminiThinkingBudget };
   }
 
@@ -340,7 +340,7 @@ app.post('/api/chat', async (request, response) => {
       const result = await generateGeminiText({
         instructions: systemInstructions(locale, mode, role, systemContext),
         contents,
-        maxOutputTokens: mode === 'voice-support' ? 220 : 360,
+        maxOutputTokens: mode === 'voice-support' ? 512 : 2048,
       });
 
       return response.json({
