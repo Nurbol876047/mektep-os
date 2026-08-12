@@ -277,8 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchChat(message, mode = 'support') {
-        const apiKey = window.GEMINI_API_KEY;
-        if (!apiKey) throw new Error("No API Key");
+        
+        
         
         try {
             // Use the new backend if it's available
@@ -295,21 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 return data.message;
+            } else {
+                throw new Error("Backend API error: " + res.status);
             }
         } catch(e) {
-            console.log("Backend not available, falling back to direct API");
+            console.error("Chat Error:", e);
+            return "Кешіріңіз, жүйеде қате шықты. Кейінірек қайталап көріңіз.";
         }
-        
-        // Fallback to direct Gemini fetch if backend is down
-        const prompt = `${systemContext}\n\nҚолданушы сұрағы: "${message}"\nҚысқа, нұсқа және пайдалы жауап бер. Markdown қолданба. ${mode === 'voice-support' ? 'Сөйлесу тілінде, қысқа жауап бер.' : ''}`;
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        
-        if (!res.ok) throw new Error("API Error: " + res.status);
-        const data = await res.json();
-        return data.candidates[0].content.parts[0].text;
     }
 });

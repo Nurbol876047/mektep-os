@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAnalytics(data.text);
             } catch (error) {
                 console.warn("Fallback қолданылды (Аналитика), себебі:", error);
-                renderAnalytics(fallbackAnalytics);
+                renderAnalytics(`Қате шықты: ${error.message}`);
             }
         });
     }

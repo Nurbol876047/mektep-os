@@ -32,7 +32,7 @@ const uploadLogic = `
   "doughnutChart": [орындалған, орындалуда, күтуде тапсырмалар саны]
 }\`;
 
-                const apiKey = window.GEMINI_API_KEY;
+                
                 const res = await fetchWithTimeout(\`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=\${apiKey}\`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -42,7 +42,7 @@ const uploadLogic = `
                 if(!res.ok) throw new Error("API Error");
                 
                 const data = await res.json();
-                let jsonText = data.candidates[0].content.parts[0].text;
+                let jsonText = data.message;
                 jsonText = jsonText.replace(/\`\`\`json/gi, '').replace(/\`\`\`/g, '').trim();
                 const parsed = JSON.parse(jsonText);
                 

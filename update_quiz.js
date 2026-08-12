@@ -51,8 +51,8 @@ const newListener = `    if (startQuizBtn) {
     }
 
     async function fetchQuizFromGemini(topic) {
-        const apiKey = window.GEMINI_API_KEY;
-        if (!apiKey) throw new Error("No API Key");
+        
+        
         
         const prompt = \`Сен тәжірибелі мектеп мұғалімісің. "\${topic}" тақырыбына оқушыларға арналған 5 сұрақтан тұратын квиз (тест) құрастыр. 
 Жауапты міндетті түрде тек қана JSON форматында қайтар. Құрылымы мынадай болсын:
@@ -72,7 +72,7 @@ const newListener = `    if (startQuizBtn) {
         }
         
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/\`\`\`json/gi, '').replace(/\`\`\`/g, '').trim();
         return JSON.parse(text);
     }`;

@@ -106,9 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
   "tasks": ["Тапсырма 1", "Тапсырма 2"]
 }
 JSON-нан басқа артық мәтін жазба.`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
         if (!res.ok) {
             const errText = await res.text();
@@ -116,9 +116,10 @@ JSON-нан басқа артық мәтін жазба.`;
             throw new Error("API Error: " + res.status);
         }
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        return match ? JSON.parse(match[0]) : JSON.parse(text);
     }
 
     function renderLessonPlan(data) {
@@ -193,9 +194,9 @@ JSON-нан басқа артық мәтін жазба.`;
 Жауапты міндетті түрде JSON форматында қайтар (Array of objects). Құрылымы:
 [ { "question": "Сұрақ?", "options": ["А", "В", "С", "Д"], "answer": "Дұрыс жауап" } ]
 JSON-нан басқа артық мәтін жазба.`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
         if (!res.ok) {
             const errText = await res.text();
@@ -203,9 +204,10 @@ JSON-нан басқа артық мәтін жазба.`;
             throw new Error("API Error: " + res.status);
         }
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        return match ? JSON.parse(match[0]) : JSON.parse(text);
     }
 
     function renderTest(questions, container) {
@@ -280,9 +282,9 @@ JSON-нан басқа артық мәтін жазба.`;
   "comment": "Сенің пікірің"
 }
 JSON-нан басқа артық мәтін жазба.`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'teacher' })
         });
         if (!res.ok) {
             const errText = await res.text();
@@ -290,9 +292,10 @@ JSON-нан басқа артық мәтін жазба.`;
             throw new Error("API Error: " + res.status);
         }
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        return match ? JSON.parse(match[0]) : JSON.parse(text);
     }
 
     function renderEval(data) {

@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchAgendaFromGemini(type, topic, date) {
-        if(!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") throw new Error("No API Key");
+        
         const prompt = `Мектеп басшылығына арналған кеңес жоспарын құрастыр.
 Кеңес түрі: ${type}. Күні: ${date}. Тақырыбы: ${topic}.
 Жауапты міндетті түрде JSON форматында қайтар. Құрылымы:
@@ -121,9 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
   "resolution": "Қорытынды шешім жобасы мәтіні"
 }
 JSON-нан басқа артық мәтін жазба.`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
         if (!res.ok) {
             const errText = await res.text();
@@ -131,9 +131,10 @@ JSON-нан басқа артық мәтін жазба.`;
             throw new Error("API Error: " + res.status);
         }
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
+        let text = data.message;
         text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        return match ? JSON.parse(match[0]) : JSON.parse(text);
     }
 
     function renderAgenda(data) {
@@ -187,40 +188,25 @@ JSON-нан басқа артық мәтін жазба.`;
                 ]);
                 renderAnalytics(data.text);
             } catch (error) {
-                console.warn(error);
-                renderAnalytics(fallbackAnalytics);
+                console.warn("Fallback қолданылды (Аналитика), себебі:", error);
+                renderAnalytics(`Қате шықты: ${error.message}`);
             }
         });
     }
 
     async function fetchAnalyticsFromGemini(question) {
-        if(!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE") throw new Error("No API Key");
-        const prompt = `Сен мектеп директорының AI-көмекшісісің. 
-Міне, мектептің қазіргі статистикалық деректері (JSON):
-${JSON.stringify(window.schoolMockData || {})}
-
-Пайдаланушының сұрағы: "${question}"
-
-Осы деректерге сүйене отырып, қазақ тілінде сапалы аналитикалық жауап бер.
-Жауабыңда мыналар болуы керек: проблема немесе жағдайды талдау, оның мүмкін себебі, және 2-3 нақты ұсыныс.
-Жауапты қатаң түрде JSON форматында қайтар:
-{
-  "text": "Талдаудың толық мәтіні осында. Абзацтарды бөлу үшін <br><br> тегін және қою қаріп үшін **мәтін** синтаксисін пайдалан."
-}
-JSON-нан басқа ештеңе жазба.`;
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const prompt = `Сен мектеп директорының AI-көмекшісісің.\nДеректер: ${JSON.stringify(window.schoolMockData || {})}\nСұрақ: "${question}"\nҚазақ тілінде нақты аналитикалық жауап бер.`;
+        const res = await fetchWithTimeout(`/api/chat`, {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { response_mime_type: "application/json" } })
+            body: JSON.stringify({ message: prompt, locale: 'kk', mode: 'director' })
         });
+        
         if (!res.ok) {
-            const errText = await res.text();
-            console.error("Gemini API қатесі (" + res.status + "):", errText);
             throw new Error("API Error: " + res.status);
         }
+        
         const data = await res.json();
-        let text = data.candidates[0].content.parts[0].text;
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        return JSON.parse(text);
+        return { text: data.message };
     }
 
     function renderAnalytics(textHtml) {
